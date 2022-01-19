@@ -1,0 +1,86 @@
+import requests
+import time
+import hashlib
+import hmac
+
+
+def gen_sign(method, url, query_string=None, payload_string=None):
+    key = '7c3d244ea0c1fc21232fc0b053aa48af'        # api_key
+    secret = '4d5a50afc051db4001d4796bf19c9d0423295cbbd3a1293dbfa38cf1e670caff'     # api_secret
+    t = time.time()# centosda +10800 yap.
+    m = hashlib.sha512()
+    m.update((payload_string or "").encode('utf-8'))
+    hashed_payload = m.hexdigest()
+    s = '%s\n%s\n%s\n%s\n%s' % (method, url, query_string or "", hashed_payload, t)
+    sign = hmac.new(secret.encode('utf-8'), s.encode('utf-8'), hashlib.sha512).hexdigest()
+    return {'KEY': key, 'Timestamp': str(t), 'SIGN': sign}
+
+
+def buy(coinName,coinPrice,coinAmount):
+    buyPrice = coinPrice
+    url = '/spot/orders'
+    query_param = ''
+    host = "https://api.gateio.ws"
+    prefix = "/api/v4"
+    body = '{"text":"t-123456","currency_pair":"' + coinName + '_USDT","type":"limit","account":"spot","side":"buy","iceberg":"0","amount":"' + coinAmount + '","price":"' + buyPrice + '","time_in_force":"gtc","auto_borrow":false}'
+    sign_headers = gen_sign('POST', prefix + url, query_param, body)
+    headers2.update(sign_headers)
+    r = requests.request('POST', host + prefix + url, headers=headers2, data=body)
+
+
+def sell(coinName,amount,coinSellPrice):
+    url = '/spot/orders'
+    query_param = ''
+    host = "https://api.gateio.ws"
+    prefix = "/api/v4"
+    body = '{"text":"t-123456","currency_pair":"'+str(coinName)+'_USDT","type":"limit","account":"spot","side":"sell","iceberg":"0","amount":"'+str(amount)+'","price":"'+str(coinSellPrice)+'","time_in_force":"gtc","auto_borrow":false}'
+    sign_headers = gen_sign('POST', prefix + url, query_param, body)
+    headers2.update(sign_headers)
+    r = requests.request('POST', host + prefix + url, headers=headers2, data=body)
+
+
+def buybtcsellcoin(coinName,coinPrice,coinAmount,btcPrice,btcAmount):
+    buy("btc",btcPrice,btcAmount)
+    sell(coinName,coinAmount,coinPrice)
+def sellbtcbuycoin(coinName, coinPrice, coinAmount, btcPrice,btcAmount):
+    buy(coinName,coinPrice,coinAmount)
+    sell("BTC",btcAmount,btcPrice)
+
+def gateio(coinName):
+    r = requests.request('GET', "https://api.gateio.ws/api/v4/spot/order_book?currency_pair="+ coinName)
+    message = r.json()
+    ask=message['asks'][0][0]
+    askamount = message['asks'][0][1]
+    bid =message['bids'][0][0]
+    bidamount = message['asks'][0][1]
+    return float(bid),float(bidamount),float(ask),float(askamount)
+
+def coinDetect(coin):
+    coinUsdt = coin+"_USDT"
+    coinBTC = coin+"_BTC"
+    btcbuy, btcbuyamount, btcsell, btcsellamount = gateio("BTC_USDT")
+    coinbuy, coinbuyamount, coinsell, coinsellamount = gateio(coinUsdt)
+    coinbtcbuy, coinbtcbuyamount, coinbtcsell, coinbtcsellamount = gateio(coinBTC)
+    btcamount = totalUsdt / btcsell
+    coinAmount = btcamount / coinbtcsell
+    lastPrice = coinAmount * coinbuy
+    print("if buy: btc and sell " + coin + " last price is: " + str(lastPrice))
+    coinamount2 = totalUsdt / coinsell
+    btcamount2 = coinamount2 *coinbtcbuy
+    lastPrice2 = btcamount2 * btcbuy
+    print("if buy: " + coin + " and sell to btc: "+ " lastprice is: "+ str(lastPrice2))
+    if (lastPrice >= 1030):
+        if (btcsellamount > btcamount and coinbtcsellamount > coinAmount and coinbuyamount > coinAmount):
+            buybtcsellcoin(coin,coinsell,coinsellamount,btcsell,btcsellamount)
+    if (lastPrice2 > 1030):
+        if (coinAmount>coinamount2 and btcamount2 >coinbtcbuyamount and btcbuyamount>btcamount2):
+            sellbtcbuycoin(coin,coinbuy,coinbuyamount,btcbuy,btcbuyamount)
+headers2 = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+
+while True:
+    totalUsdt = 1000
+    coins = ['ETH', 'GT','ADA','DOGE','ASTR','LTC','ETC','CRV','DOT','NEO','XRP','DASH']
+    i = 0
+    for i in range (12):
+        time.sleep(1)
+        coinDetect(coins[i])
