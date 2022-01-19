@@ -5,9 +5,9 @@ import hmac
 
 
 def gen_sign(method, url, query_string=None, payload_string=None):
-    key = ''        # api_key
-    secret = ''     # api_secret
-    t = time.time()# centosda +10800 yap.
+    key = 'api_key_here'        
+    secret = 'api_secret here'    
+    t = time.time()
     m = hashlib.sha512()
     m.update((payload_string or "").encode('utf-8'))
     hashed_payload = m.hexdigest()
