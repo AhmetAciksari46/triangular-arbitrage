@@ -1,5 +1,8 @@
 # triangular-arbitrage
 #v1.0
+requirements
+python 3.9
+requests library -> write (pip3 install requests) on command promt. *i will add information for other OS users.
 
 triangular arbitrage bot using python
 
@@ -12,3 +15,5 @@ Test it with 1000 usdt. For v1.0: Dont buy or sell only detect. I will add to Bu
 
 
 Detecting to : ['ETH', 'GT','ADA','DOGE','ASTR','LTC','ETC','CRV','DOT','NEO','XRP','DASH'] .. *I will add more*
+
+
