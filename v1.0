@@ -17,26 +17,11 @@ def gen_sign(method, url, query_string=None, payload_string=None):
 
 
 def buy(coinName,coinPrice,coinAmount):
-    buyPrice = coinPrice
-    url = '/spot/orders'
-    query_param = ''
-    host = "https://api.gateio.ws"
-    prefix = "/api/v4"
-    body = '{"text":"t-123456","currency_pair":"' + coinName + '_USDT","type":"limit","account":"spot","side":"buy","iceberg":"0","amount":"' + coinAmount + '","price":"' + buyPrice + '","time_in_force":"gtc","auto_borrow":false}'
-    sign_headers = gen_sign('POST', prefix + url, query_param, body)
-    headers2.update(sign_headers)
-    r = requests.request('POST', host + prefix + url, headers=headers2, data=body)
-
+    this function will add
 
 def sell(coinName,amount,coinSellPrice):
-    url = '/spot/orders'
-    query_param = ''
-    host = "https://api.gateio.ws"
-    prefix = "/api/v4"
-    body = '{"text":"t-123456","currency_pair":"'+str(coinName)+'_USDT","type":"limit","account":"spot","side":"sell","iceberg":"0","amount":"'+str(amount)+'","price":"'+str(coinSellPrice)+'","time_in_force":"gtc","auto_borrow":false}'
-    sign_headers = gen_sign('POST', prefix + url, query_param, body)
-    headers2.update(sign_headers)
-    r = requests.request('POST', host + prefix + url, headers=headers2, data=body)
+    this function will add
+
 
 
 def buybtcsellcoin(coinName,coinPrice,coinAmount,btcPrice,btcAmount):
